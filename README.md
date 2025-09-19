@@ -14,3 +14,11 @@ All commands start with `dim_`. Superadmin-only commands are marked.
   - Rebuild visibility for all players.
 - dim_menu  [superadmin]
   - Open the dimensions admin menu.
+
+
+#TO-DO
+Functionality : 
+
+
+BugFixes :
+Explosion Effects are seen from other dimensions [ ] 
