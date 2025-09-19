@@ -21,4 +21,4 @@ Functionality :
 
 
 BugFixes :
-Explosion Effects are seen from other dimensions [ ] 
+Explosion Effects are seen from other dimensions
