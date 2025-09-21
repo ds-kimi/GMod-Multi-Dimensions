@@ -364,6 +364,9 @@ if entityMeta then
 		if self:IsPlayer() then
 			self:ChatPrint("Dimension changed to " .. tostring(id))
 		end
+
+		-- Fire a global hook for other addons
+		hook.Run("Dimensions_EntityDimensionChanged", self, previous, id)
 	end
 end
 
@@ -735,6 +738,75 @@ local function allocateNewDimension()
 	end
 	local newId = NEXT_DIM_ID
 	NEXT_DIM_ID = NEXT_DIM_ID + 1
+	return newId
+end
+
+-- Bind allocator into public API now that it's defined
+-- API module
+_G.Dimensions = _G.Dimensions or {}
+local API = _G.Dimensions
+API.Version = 1
+
+-- Basic queries
+function API.GetDimension(ent)
+	return getEntityDimension(ent)
+end
+
+function API.EntitiesShareDimension(a, b)
+	return entitiesShareDimension(a, b)
+end
+
+function API.IsGlobal(ent)
+	return IsValid(ent) and ent.DimensionGlobal == true
+end
+
+-- Mutations
+function API.SetDimension(ent, id)
+	if not IsValid(ent) then return false end
+	if ent.SetDimension then ent:SetDimension(id); return true end
+	ent.DimensionID = tonumber(id) or ent.DimensionID or 0
+	ensureCustomCollision(ent)
+	updateTransmitForEntity(ent)
+	return true
+end
+
+function API.SetGlobal(ent, makeGlobal)
+	if not IsValid(ent) then return false end
+	if makeGlobal then
+		ent.DimensionGlobal = true
+		propagateGlobalToChildren(ent, true)
+	else
+		ent.DimensionGlobal = nil
+	end
+	ensureCustomCollision(ent)
+	updateTransmitForEntity(ent)
+	return true
+end
+
+-- Visibility resync
+function API.Resync(target)
+	if IsValid(target) and target:IsPlayer() then
+		updateTransmitForPlayer(target)
+		return true
+	end
+	if IsValid(target) then
+		updateTransmitForEntity(target)
+		return true
+	end
+	for _, p in ipairs(player.GetAll()) do updateTransmitForPlayer(p) end
+	return true
+end
+
+-- Allocation helpers will be bound after allocator is defined
+function API.AllocateNewDimension()
+	-- Placeholder; will be replaced after allocator definition
+	return 0
+end
+
+function API.PairInNewDimension(ply, target)
+	local newId = (API.AllocateNewDimension and API.AllocateNewDimension()) or 0
+	if IsValid(ply) then ply:SetDimension(newId) end
+	if IsValid(target) then target:SetDimension(newId) end
 	return newId
 end
 
