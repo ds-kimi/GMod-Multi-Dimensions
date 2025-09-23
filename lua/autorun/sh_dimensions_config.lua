@@ -3,7 +3,7 @@
 DimensionsConfig = DimensionsConfig or {}
 
 -- If false, players won't see the HUD dimension indicator
-DimensionsConfig.ShowHUD = true
+DimensionsConfig.ShowHUD = false
 
 -- Enable verbose debug logs (server and client)
 DimensionsConfig.Debug = false
